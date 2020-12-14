@@ -1,8 +1,11 @@
 # Imports
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 from django.contrib import messages
 import string
 import random
+import os
+from django.views.static import serve
+
 # Import Models
 from log_reg.models import *
 from .models import *
@@ -25,35 +28,44 @@ def index(request):
 
 
 def upload_page(request):
-    return render(request, 'upload.html')
+    context = {
+        'user': User.objects.get(id=request.session['user_id'])
+    }
+    return render(request, 'upload.html', context)
 
 
 def update(request, id):
-    if request.method == 'GET':
-        return redirect('/')
-    context = {}
-    context['file'] = File.objects.get(id=id)
-    return render(request, 'update.html', context)
+    file = File.objects.get(id=id)
+    owner = file.owner
+    if request.session['user_id'] == owner.id:
+        context = {}
+        context['file'] = file
+        context['user'] = owner
+        return render(request, 'update.html', context)
+    return redirect('/')
 
 
-def delete(request, id):
-    if request.method == 'GET':
-        return redirect('/')
-    context = {}
-    context['file'] = File.objects.get(id=id)
-    return render(request, 'update.html', context)
+# def delete(request, id):
+#     if request.method == 'GET':
+#         return redirect('/')
+#     context = {}
+#     context['file'] = File.objects.get(id=id)
+#     return render(request, 'update.html', context)
 
 
 def file(request, id):
+    file = File.objects.get(id=id)
+    owner = file.owner
     context = {}
     context['file'] = File.objects.get(id=id)
+    context['users'] = User.objects.all
+    if 'user_id' in request.session:
+        print("user_id in request.session")
+        context['user'] = User.objects.get(id=request.session['user_id'])
+        if request.session['user_id'] == owner.id:
+            context['owner'] = owner
+
     return render(request, 'file.html', context)
-
-
-def edit_file(request, id):
-    context = {}
-    context['file'] = File.objects.get(id=id)
-    return render(request, 'update.html', context)
 
 
 def upload(request):
@@ -62,7 +74,7 @@ def upload(request):
         print(request.FILES)
         code = generate_code()
         new_file = File(name=request.POST['name'], location=request.FILES['file'],
-                        code=code, owner=User.objects.get(id=request.session['user_id']), price=request.POST['price'])
+                        code=code, owner=User.objects.get(id=request.session['user_id']), price=request.POST['price'], status=False)
         new_file.save()
         print(new_file)
         id = new_file.id
@@ -80,7 +92,10 @@ def save(request, id):
             to_update.code = code
         to_update.name = request.POST['name']
         to_update.price = request.POST['price']
-        to_update.paid
+        if request.POST['status'] == 'y':
+            to_update.status = True
+        elif request.POST['status'] == 'n':
+            to_update.status = False
         to_update.save()
         print(to_update)
         return redirect(f'/file/{id}/update')
@@ -89,3 +104,15 @@ def save(request, id):
 
 def generate_code(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
+
+
+def download_file(request, id):
+    if request.method == 'POST':
+        file_obj = File.objects.get(id=id)
+        input_code = request.POST['code'].upper()
+        if file_obj.code == input_code:
+            filepath = f'storage/{file_obj.location}'
+            return serve(request, os.path.basename(filepath), os.path.dirname(filepath))
+        messages.error(request, 'Incorrect Code')
+        return redirect(f'/file/{id}')
+    return redirect(f'/file/{id}')

@@ -23,7 +23,7 @@
         <a class="nav-link" href="/upload">Upload<span class="sr-only">(current)</span></a>
       </li>
     </ul>
-    <small class="text-muted" style='padding-right: 10px; color: white;'>Welcome, {{request.session.fname}}!</small>
+    <small class="text-muted" style='padding-right: 10px; color: white;'>Welcome, {{user.first_name}}!</small>
 
     <form class="form-inline my-2 my-lg-0" action='/login/logout/', method='post'>
       {% csrf_token %}
@@ -52,6 +52,8 @@
             <tr>
               <th scope="col">File Name</th>
               <th scope="col">Unlock Code</th>
+              <th scope="col">Price</th>
+              <th scope="col">Paid?</th>
               <th scope="col">Actions</th>
             </tr>
           </thead>
@@ -60,14 +62,17 @@
             <tr>
               <th scope="row">{{file.name}}</th>
               <td>{{file.code}}</td>
+              <td>${{file.price}}</td>
+              <td>{% if file.status == True %}
+                    Yes
+                  {% else %}
+                    No
+                  {% endif %}</td>
               <td>   
-                <form action="/file/{{file.id}}/update" method="post">
-                  {% csrf_token %}
-                  <div class="btn-group" role="group">
-                    <a href="/file/{{file.id}}" class="btn btn-secondary btn-sm">View</a>
-                    <button class="btn btn-secondary btn-sm" type="submit">Update</button>
-                  </div>
-                </form>
+                <div class="btn-group" role="group">
+                  <a href="/file/{{file.id}}" class="btn btn-secondary btn-sm">View</a>
+                  <a href="/file/{{file.id}}/update" class="btn btn-secondary btn-sm">Update</a>
+                </div>
                 {% comment %} <a href="/file/{{file.id}}/delete">Delete</a> {% endcomment %}
               </td>
             </tr>

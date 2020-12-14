@@ -35,13 +35,13 @@ def login_user(request):
     else:
         user = User.objects.get(email=request.POST['email'])
         request.session['user_id'] = user.id
-        request.session['fname'] = user.first_name
+        request.session['name'] = user.first_name
         messages.success(request, "You have successfully logged in!")
         return redirect('/')
 
 
 def logout(request):
-    request.session.clear()
+    request.session.flush()
     messages.success(request, "You have successfully logged out!")
     return redirect('/')
 

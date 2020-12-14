@@ -16,29 +16,58 @@
 
   <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
     <a class="navbar-brand" href="/">Shakedown.io</a>
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <a class="nav-link" href="/">Dashboard<span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/upload">Upload<span class="sr-only">(current)</span></a>
-      </li>
-    </ul>
-    <small class="text-muted" style='padding-right: 10px; color: white;'>Welcome, {{request.session.fname}}!</small>
+    {% if user in users %}
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Dashboard<span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/upload">Upload<span class="sr-only">(current)</span></a>
+        </li>
+      </ul>
+      <small class="text-muted" style='padding-right: 10px; color: white;'>Welcome, {{user.first_name}}!</small>
 
-    <form class="form-inline my-2 my-lg-0" action='/login/logout/', method='post'>
-      {% csrf_token %}
-      <button class="btn-primary my-2 my-sm-0 red" type="submit">Log Out</button>
-    </form>
+      <form class="form-inline my-2 my-lg-0" action='/login/logout/', method='post'>
+        {% csrf_token %}
+        <button class="btn-primary my-2 my-sm-0 red" type="submit">Log Out</button>
+      </form>
+    {% else %}
+     <a href="/">Login</a>
+    {% endif %}
+    
   </nav>
 
   <main role="main" class="container">
     <div class="sub-main">
-      <h1>File</h1>
+    {% if messages %}
+          <ul class="messages">    
+              {% for message in messages %}    
+                  <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>    
+              {% endfor %}
+          </ul>
+      {% endif %}
+    {% comment %} {% if user in request.session and user.id == file.owner %}
+      <form action="/file/{{file.id}}/update" method="post">
+        {% csrf_token %}
+        <div class="btn-group" role="group">
+          <button class="btn btn-secondary btn-sm" type="submit">Update</button>
+        </div>
+      </form>
+    {% endif %} {% endcomment %}
+      <h1>Your File</h1>
+      {% if file.status == 'y' %}
+        <p>Your file is paid for! Please enter your code below to download.</p>
+      {% endif %}
       {% comment %} File name and preview displayed, along with area to copy code and link to public file {% endcomment %}
-
+      <form action="{{file.id}}/download" method="post">
+        {% csrf_token %}
+        Enter code: Should be 6 characters
+        <input type="text" name="code">
+        <button type="submit">Download File</button>
+      </form>
 
     </div>
+    <a class="inline my-2 my-lg-0"href="/">Log In</a>
   </main> 
   {% comment %} Scripts {% endcomment %}
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>

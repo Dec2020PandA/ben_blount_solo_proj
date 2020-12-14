@@ -23,7 +23,7 @@
         <a class="nav-link" href="/upload">Upload<span class="sr-only">(current)</span></a>
       </li>
     </ul>
-    <small class="text-muted" style='padding-right: 10px; color: white;'>Welcome, {{request.session.fname}}!</small>
+    <small class="text-muted" style='padding-right: 10px; color: white;'>Welcome, {{request.session.name}}!</small>
 
     <form class="form-inline my-2 my-lg-0" action='/login/logout/', method='post'>
       {% csrf_token %}

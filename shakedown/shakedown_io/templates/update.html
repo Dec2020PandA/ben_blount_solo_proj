@@ -23,7 +23,7 @@
         <a class="nav-link" href="/upload">Upload<span class="sr-only">(current)</span></a>
       </li>
     </ul>
-    <small class="text-muted" style='padding-right: 10px; color: white;'>Welcome, {{request.session.fname}}!</small>
+    <small class="text-muted" style='padding-right: 10px; color: white;'>Welcome, {{user.first_name}}!</small>
 
     <form class="form-inline my-2 my-lg-0" action='/login/logout/', method='post'>
       {% csrf_token %}
@@ -52,7 +52,7 @@
         {% csrf_token %}
         <div class="form-group"> 
           File Name:
-          <input type="text" name="name" class="form-control" value={{file.name}}>
+          <input type="text" name="name" class="form-control" value="{{file.name}}">
         </div>
         <div class="form-group"> 
           Price:
@@ -62,8 +62,16 @@
         <div class="form-group">
           <label for="new_code">Generate new code?</label>
           <select class="form-control" id="new_code" name="new_code">
-            <option value="y">Yes</option>
             <option value="n">No</option>
+            <option value="y">Yes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="update_status">Mark as Paid?</label>
+          <select class="form-control" id="update_status" name="status">
+            <option value="null"></option>
+            <option value="n">No</option>
+            <option value="y">Yes</option>
           </select>
         </div>
         {% comment %} Add a client drop down {% endcomment %}
