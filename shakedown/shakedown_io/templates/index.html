@@ -14,7 +14,7 @@
 <body>
 
   <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand" href="#">Shakedown.io</a>
+    <a class="navbar-brand" href="/">Shakedown.io</a>
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
         <a class="nav-link" href="/">Dashboard<span class="sr-only">(current)</span></a>
@@ -52,15 +52,23 @@
             <tr>
               <th scope="col">File Name</th>
               <th scope="col">Unlock Code</th>
-              <th scope="col">Link</th>
+              <th scope="col">Actions</th>
             </tr>
           </thead>
           <tbody>
-           {% for file in user.file.all %}
+           {% for file in user.files.all %}
             <tr>
-              <th scope="row">{{friend.alias}}</th>
-              <td>
-                <a href="/file/{{file.id}}/edit"></a>
+              <th scope="row">{{file.name}}</th>
+              <td>{{file.code}}</td>
+              <td>   
+                <form action="/file/{{file.id}}/update" method="post">
+                  {% csrf_token %}
+                  <div class="btn-group" role="group">
+                    <a href="/file/{{file.id}}" class="btn btn-secondary btn-sm">View</a>
+                    <button class="btn btn-secondary btn-sm" type="submit">Update</button>
+                  </div>
+                </form>
+                {% comment %} <a href="/file/{{file.id}}/delete">Delete</a> {% endcomment %}
               </td>
             </tr>
             {% endfor %}
@@ -68,7 +76,7 @@
         </table>
      
       {% else %}
-        <p class="lead">You haven't uploaded any files. Add one now.</p>
+        <p class="lead">You haven't uploaded any files. Add one now. <a href='/upload' class="btn btn-primary">Upload</a></p>
         
       {% endif %}
       </div>
